@@ -7,9 +7,10 @@ type View = 'find-jobs' | 'tracker';
 
 interface DashboardLayoutProps {
   initialJobTitle?: string;
+  resumeText?: string;
 }
 
-const DashboardLayout = ({ initialJobTitle }: DashboardLayoutProps) => {
+const DashboardLayout = ({ initialJobTitle, resumeText = '' }: DashboardLayoutProps) => {
   const [activeView, setActiveView] = useState<View>('find-jobs');
 
   return (
@@ -19,7 +20,7 @@ const DashboardLayout = ({ initialJobTitle }: DashboardLayoutProps) => {
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-6xl mx-auto">
           {activeView === 'find-jobs' && (
-            <FindJobsView initialRole={initialJobTitle} />
+            <FindJobsView initialRole={initialJobTitle} resumeText={resumeText} />
           )}
           {activeView === 'tracker' && <TrackerView />}
         </div>

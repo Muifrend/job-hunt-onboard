@@ -8,7 +8,7 @@ import FileUploadZone from './FileUploadZone';
 const BACKEND_URL = "http://127.0.0.1:8000";
 
 interface OnboardingCardProps {
-  onSuccess: (jobTitle: string) => void;
+  onSuccess: (jobTitle: string, resumeText: string) => void;
 }
 
 const OnboardingCard = ({ onSuccess }: OnboardingCardProps) => {
@@ -46,7 +46,7 @@ const OnboardingCard = ({ onSuccess }: OnboardingCardProps) => {
           title: "Agent Initialized!",
           description: data.message || "Your job hunt has started.",
         });
-        onSuccess(jobTitle);
+        onSuccess(jobTitle, notes);
       } else {
         console.error("Server Error:", data);
         toast({
