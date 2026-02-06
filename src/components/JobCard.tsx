@@ -92,6 +92,7 @@ const JobCard = ({ title, company, url, snippet, resumeText = '' }: JobCardProps
           user_resume: resumeText,
           company_name: company,
           role_title: title,
+          url: url,
         }),
       });
 
