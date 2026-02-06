@@ -7,7 +7,11 @@ import FileUploadZone from './FileUploadZone';
 // WHEN DEPLOYED: Use your production URL
 const BACKEND_URL = "http://127.0.0.1:8000";
 
-const OnboardingCard = () => {
+interface OnboardingCardProps {
+  onSuccess: (jobTitle: string) => void;
+}
+
+const OnboardingCard = ({ onSuccess }: OnboardingCardProps) => {
   const [jobTitle, setJobTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -42,6 +46,7 @@ const OnboardingCard = () => {
           title: "Agent Initialized!",
           description: data.message || "Your job hunt has started.",
         });
+        onSuccess(jobTitle);
       } else {
         console.error("Server Error:", data);
         toast({
@@ -136,12 +141,12 @@ const OnboardingCard = () => {
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Searching...
+                  Initializing Agent...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  Start Hunting
+                  Initialize Agent
                 </>
               )}
             </span>
