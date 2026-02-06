@@ -1,10 +1,17 @@
 import OnboardingCard from '@/components/OnboardingCard';
+import JobDashboard from '@/components/JobDashboard';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background gradient-glow">
-      <div className="flex items-center justify-center min-h-screen px-4 py-12">
-        <OnboardingCard />
+      <div className="px-4 py-12">
+        {/* Onboarding Section */}
+        <div className="flex items-center justify-center">
+          <OnboardingCard />
+        </div>
+        
+        {/* Job Dashboard Section */}
+        <JobDashboard initialRole="software engineer" />
       </div>
       
       {/* Subtle background elements */}
