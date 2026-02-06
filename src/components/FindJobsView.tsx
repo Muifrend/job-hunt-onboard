@@ -16,9 +16,10 @@ interface Job {
 
 interface FindJobsViewProps {
   initialRole?: string;
+  resumeText?: string;
 }
 
-const FindJobsView = ({ initialRole = 'software engineer' }: FindJobsViewProps) => {
+const FindJobsView = ({ initialRole = 'software engineer', resumeText = '' }: FindJobsViewProps) => {
   const [role, setRole] = useState(initialRole);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -142,6 +143,7 @@ const FindJobsView = ({ initialRole = 'software engineer' }: FindJobsViewProps) 
                   company={job.company}
                   url={job.url}
                   snippet={job.snippet}
+                  resumeText={resumeText}
                 />
               ))}
             </div>

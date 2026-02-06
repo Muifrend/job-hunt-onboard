@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExternalLink, Loader2, FileText } from 'lucide-react';
+import { ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import CoverLetterEditor from './CoverLetterEditor';
 
 const BACKEND_URL = "http://127.0.0.1:8000";
 
@@ -19,12 +20,16 @@ interface JobCardProps {
   company: string;
   url: string;
   snippet: string;
+  resumeText?: string;
 }
 
-const JobCard = ({ title, company, url, snippet }: JobCardProps) => {
+const JobCard = ({ title, company, url, snippet, resumeText = '' }: JobCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fullDescription, setFullDescription] = useState<string | null>(null);
+  const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [isCoverLetterEditorOpen, setIsCoverLetterEditorOpen] = useState(false);
 
   const handleCardClick = async () => {
     setIsLoading(true);
@@ -64,11 +69,58 @@ const JobCard = ({ title, company, url, snippet }: JobCardProps) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const handleGenerateCoverLetter = () => {
-    toast({
-      title: "Coming Soon",
-      description: "Cover letter generation will be available soon!",
-    });
+  const handleGenerateCoverLetter = async () => {
+    if (!fullDescription) {
+      toast({
+        title: "Error",
+        description: "No job description available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingCoverLetter(true);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/generate-cover-letter`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          job_description: fullDescription,
+          user_resume: resumeText,
+          company_name: company,
+          role_title: title,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        setCoverLetter(data.cover_letter);
+        setIsCoverLetterEditorOpen(true);
+        toast({
+          title: "Cover Letter Generated!",
+          description: "Your AI-drafted cover letter is ready to edit.",
+        });
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: data.message || "Could not generate cover letter.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Cover letter generation failed:", error);
+      toast({
+        title: "Connection Failed",
+        description: "Could not connect to backend.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingCoverLetter(false);
+    }
   };
 
   return (
@@ -131,11 +183,21 @@ const JobCard = ({ title, company, url, snippet }: JobCardProps) => {
           <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
             <Button 
               onClick={handleGenerateCoverLetter}
+              disabled={isGeneratingCoverLetter}
               variant="outline"
               className="flex-1"
             >
-              <FileText className="w-4 h-4 mr-2" />
-              Generate Cover Letter
+              {isGeneratingCoverLetter ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  AI is drafting your letter...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Write Cover Letter
+                </>
+              )}
             </Button>
             <Button 
               onClick={handleAutoApply}
@@ -147,6 +209,14 @@ const JobCard = ({ title, company, url, snippet }: JobCardProps) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <CoverLetterEditor
+        isOpen={isCoverLetterEditorOpen}
+        onOpenChange={setIsCoverLetterEditorOpen}
+        coverLetter={coverLetter}
+        jobTitle={title}
+        company={company}
+      />
     </>
   );
 };

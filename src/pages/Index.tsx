@@ -5,15 +5,17 @@ import DashboardLayout from '@/components/DashboardLayout';
 const Index = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [jobTitle, setJobTitle] = useState('');
+  const [resumeText, setResumeText] = useState('');
 
-  const handleInitSuccess = (title: string) => {
+  const handleInitSuccess = (title: string, resume: string) => {
     setJobTitle(title);
+    setResumeText(resume);
     setIsInitialized(true);
   };
 
   // Show Dashboard after successful initialization
   if (isInitialized) {
-    return <DashboardLayout initialJobTitle={jobTitle} />;
+    return <DashboardLayout initialJobTitle={jobTitle} resumeText={resumeText} />;
   }
 
   // Show Onboarding Gate initially
