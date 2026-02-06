@@ -30,6 +30,7 @@ const JobCard = ({ title, company, url, snippet, resumeText = '' }: JobCardProps
   const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [isCoverLetterEditorOpen, setIsCoverLetterEditorOpen] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
 
   const handleCardClick = async () => {
     setIsLoading(true);
@@ -64,9 +65,43 @@ const JobCard = ({ title, company, url, snippet, resumeText = '' }: JobCardProps
     }
   };
 
-  const handleAutoApply = (e: React.MouseEvent) => {
+  const handleAutoApply = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(url, '_blank', 'noopener,noreferrer');
+    setIsApplying(true);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/apply-to-job`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        toast({
+          title: "🤖 Agent Complete!",
+          description: data.message || "Form has been filled. Please review and submit.",
+        });
+      } else {
+        toast({
+          title: "Application Failed",
+          description: data.message || "Could not complete the application.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Auto-apply failed:", error);
+      toast({
+        title: "Connection Failed",
+        description: "Could not connect to the AI agent.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   const handleGenerateCoverLetter = async () => {
@@ -153,10 +188,20 @@ const JobCard = ({ title, company, url, snippet, resumeText = '' }: JobCardProps
         <CardFooter>
           <Button 
             onClick={handleAutoApply}
+            disabled={isApplying}
             className="w-full btn-hunting"
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Auto-Apply
+            {isApplying ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Agent Running...
+              </>
+            ) : (
+              <>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Auto-Apply
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
@@ -202,10 +247,20 @@ const JobCard = ({ title, company, url, snippet, resumeText = '' }: JobCardProps
             </Button>
             <Button 
               onClick={handleAutoApply}
+              disabled={isApplying}
               className="flex-1 btn-hunting"
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Auto-Apply
+              {isApplying ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Agent Running...
+                </>
+              ) : (
+                <>
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Auto-Apply
+                </>
+              )}
             </Button>
           </div>
         </DialogContent>
