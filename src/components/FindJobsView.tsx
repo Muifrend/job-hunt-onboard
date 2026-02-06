@@ -14,11 +14,11 @@ interface Job {
   snippet: string;
 }
 
-interface JobDashboardProps {
+interface FindJobsViewProps {
   initialRole?: string;
 }
 
-const JobDashboard = ({ initialRole = '' }: JobDashboardProps) => {
+const FindJobsView = ({ initialRole = 'software engineer' }: FindJobsViewProps) => {
   const [role, setRole] = useState(initialRole);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,13 +71,16 @@ const JobDashboard = ({ initialRole = '' }: JobDashboardProps) => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-12">
-      {/* Search Section */}
-      <div className="card-glow rounded-2xl bg-card p-6 mb-8">
-        <h2 className="text-xl font-bold text-foreground mb-4">
-          Job Hunt Dashboard
-        </h2>
-        
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">Find Jobs</h2>
+        <p className="text-muted-foreground mt-1">
+          Let AI scan the web for your perfect opportunity
+        </p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="card-glow rounded-xl bg-card p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
@@ -114,7 +117,7 @@ const JobDashboard = ({ initialRole = '' }: JobDashboardProps) => {
             <span className="text-lg">AI Agent is scanning the web...</span>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="card-glow rounded-lg bg-card p-6 space-y-4">
                 <Skeleton className="h-6 w-3/4" />
@@ -131,7 +134,7 @@ const JobDashboard = ({ initialRole = '' }: JobDashboardProps) => {
       {!isLoading && hasSearched && (
         <>
           {jobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {jobs.map((job, index) => (
                 <JobCard
                   key={`${job.company}-${job.title}-${index}`}
@@ -150,8 +153,17 @@ const JobDashboard = ({ initialRole = '' }: JobDashboardProps) => {
           )}
         </>
       )}
+
+      {/* Empty State */}
+      {!isLoading && !hasSearched && (
+        <div className="text-center py-16 text-muted-foreground">
+          <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p className="text-lg">Ready to find your dream job?</p>
+          <p className="text-sm mt-2">Enter a role and click "Start Job Hunt"</p>
+        </div>
+      )}
     </div>
   );
 };
 
-export default JobDashboard;
+export default FindJobsView;

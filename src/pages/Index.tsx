@@ -1,17 +1,26 @@
+import { useState } from 'react';
 import OnboardingCard from '@/components/OnboardingCard';
-import JobDashboard from '@/components/JobDashboard';
+import DashboardLayout from '@/components/DashboardLayout';
 
 const Index = () => {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [jobTitle, setJobTitle] = useState('');
+
+  const handleInitSuccess = (title: string) => {
+    setJobTitle(title);
+    setIsInitialized(true);
+  };
+
+  // Show Dashboard after successful initialization
+  if (isInitialized) {
+    return <DashboardLayout initialJobTitle={jobTitle} />;
+  }
+
+  // Show Onboarding Gate initially
   return (
     <div className="min-h-screen bg-background gradient-glow">
-      <div className="px-4 py-12">
-        {/* Onboarding Section */}
-        <div className="flex items-center justify-center">
-          <OnboardingCard />
-        </div>
-        
-        {/* Job Dashboard Section */}
-        <JobDashboard initialRole="software engineer" />
+      <div className="flex items-center justify-center min-h-screen px-4 py-12">
+        <OnboardingCard onSuccess={handleInitSuccess} />
       </div>
       
       {/* Subtle background elements */}
