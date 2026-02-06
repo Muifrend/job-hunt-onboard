@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Briefcase, Sparkles } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import FileUploadZone from './FileUploadZone';
+
+// WHEN TESTING LOCALLY: Use "http://127.0.0.1:8000"
+// WHEN DEPLOYED: Use your production URL
+const BACKEND_URL = "http://127.0.0.1:8000";
 
 const OnboardingCard = () => {
   const [jobTitle, setJobTitle] = useState('');
@@ -8,12 +13,53 @@ const OnboardingCard = () => {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleStartHunting = () => {
+  const handleStartHunting = async (event: React.FormEvent) => {
+    event.preventDefault();
+
     setIsLoading(true);
-    // Simulate processing - in real app, this would call an API
-    setTimeout(() => {
+
+    const formData = new FormData();
+    formData.append("job_title", jobTitle);
+    formData.append("experience", notes);
+
+    if (resumeFile) {
+      formData.append("resume", resumeFile);
+    }
+
+    try {
+      console.log("Sending data to backend...");
+
+      const response = await fetch(`${BACKEND_URL}/initialize-agent`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Success:", data);
+        toast({
+          title: "Agent Initialized!",
+          description: data.message || "Your job hunt has started.",
+        });
+      } else {
+        console.error("Server Error:", data);
+        toast({
+          title: "Error",
+          description: JSON.stringify(data),
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Connection Failed:", error);
+      toast({
+        title: "Connection Failed",
+        description: "Could not connect to backend. Is it running?",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   };
 
   const isFormValid = jobTitle.trim().length > 0;
